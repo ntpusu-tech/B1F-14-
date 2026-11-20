@@ -181,7 +181,7 @@ dl.info dd{margin:0;font-weight:500;overflow-wrap:anywhere}
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 /* ===== 部署時只需要改這兩個值（見《部署說明》） ===== */
-const API_URL = 'https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec';                                   // Apps Script 網頁應用程式網址（結尾 /exec）
+const API_URL = 'https://script.google.com/macros/s/AKfycby6WAKdPYlDR6NoT6Nfd2WdKvooYeBy50dXIqQeJej9fbLXTh9HALkOYGZloD9D4nwx/exec';                                   // Apps Script 網頁應用程式網址（結尾 /exec）
 const GOOGLE_CLIENT_ID = '318539943984-e6amlue35s5m437o5mnpmt5akq4p0p0a.apps.googleusercontent.com'; // Google Cloud 的 OAuth 用戶端 ID
 /* ===== 以下不需修改：登入，以及把原本的 gas.run 改成呼叫 API ===== */
 (function () {
@@ -194,7 +194,7 @@ const GOOGLE_CLIENT_ID = '318539943984-e6amlue35s5m437o5mnpmt5akq4p0p0a.apps.goo
     sessionStorage.removeItem(KEY); return '';
   };
   const call = (fn, args) => {
-    if (API_URL.indexOf('https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec') === 0) return Promise.reject(new Error('尚未設定 API_URL，請依部署說明填入 Apps Script 網址。'));
+    if (API_URL.indexOf('https://script.google.com/macros/s/AKfycby6WAKdPYlDR6NoT6Nfd2WdKvooYeBy50dXIqQeJej9fbLXTh9HALkOYGZloD9D4nwx/exec') === 0) return Promise.reject(new Error('尚未設定 API_URL，請依部署說明填入 Apps Script 網址。'));
     return fetch(API_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args, token: token() }) })
       .then(r => r.text())
       .then(t => { let j; try { j = JSON.parse(t); } catch (e) { throw new Error('後端沒有回傳資料，請確認 Apps Script 已部署，且「誰可以存取」是「所有人」。'); } if (j.error) throw new Error(j.error); return j.r; },
