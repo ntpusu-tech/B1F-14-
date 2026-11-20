@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --line:#E5E7EB; --line2:#D1D5DB;
+  --ink:#111827; --ink2:#4B5563; --muted:#6B7280;
+  --accent:#0F766E; --accent-dk:#115E59; --accent-bg:#F0FDFA;
+  --red:#B42318; --red-bg:#FEF2F2; --red-line:#FECACA;
+  --amber-bg:#FEF3C7; --amber-ink:#92400E; --amber-line:#FDE68A;
+  --gray-bg:#E5E7EB; --gray-ink:#374151;
+  --mine-bg:#CCFBF1; --mine-ink:#115E59;
+  --prio-bg:#EDE9FE; --prio-ink:#5B21B6; --prio-line:#C4B5FD;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif;font-size:15px}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px;display:flex;flex-direction:column;gap:22px}
+.narrow{max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.mid{max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.title{margin:0;padding-bottom:18px;border-bottom:1px solid var(--line);font-size:clamp(21px,3vw,30px);line-height:1.35}
+h2{margin:0;font-size:26px}
+h3{margin:0;font-size:17px}
+p{margin:0}
+.muted{color:var(--ink2);font-size:14px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.end{justify-content:flex-end}
+.center{justify-content:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn:disabled{cursor:not-allowed;opacity:.55}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn.outline{border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
+.btn.danger-outline{border-color:var(--red);color:var(--red);font-weight:700}
+.btn.big{min-height:52px;padding:0 32px;font-size:17px;border-radius:12px}
+.btn.icon{width:44px;padding:0}
+.link{border:0;background:none;color:var(--accent);text-decoration:underline;cursor:pointer;min-height:44px;padding:0 8px;font-size:14px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.b-pending{background:var(--amber-bg);color:var(--amber-ink)}
+.b-approved{background:#DCFCE7;color:#166534}
+.b-rejected{background:#FEE2E2;color:#991B1B}
+.b-cancelled{background:#F3F4F6;color:#4B5563}
+.b-prio{background:var(--prio-bg);color:var(--prio-ink)}
+.b-overlap{background:#FEE2E2;color:#991B1B}
+.b-new{background:var(--mine-bg);color:var(--mine-ink)}
+.notice{padding:14px 16px;border-radius:12px;font-size:14px;line-height:1.65}
+.n-ok{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
+.n-warn{background:#FFFBEB;border:1px solid #FCD34D;color:#78350F}
+.n-err{background:var(--red-bg);border:1px solid var(--red-line);color:#991B1B}
+.n-prio{background:#F5F3FF;border:1px solid var(--prio-line);color:#4C1D95}
+.field{display:flex;flex-direction:column;gap:8px}
+.field>label,.legend-title{font-weight:700;font-size:16px}
+.req{color:var(--red)}
+.input{min-height:48px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink);width:100%}
+textarea.input{padding:10px 12px;line-height:1.6;resize:vertical}
+select.input:disabled{background:#F1F2F4;color:var(--muted)}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.choice{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font-weight:500}
+.choice.on{border-color:var(--accent);background:var(--accent-bg)}
+.choice input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+fieldset{margin:0;padding:0;border:0}
+legend{padding:0;margin-bottom:12px}
+
+/* 月曆 */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.wd{text-align:center;font-size:14px;font-weight:500;color:var(--ink2);padding:6px 0}
+.wd.we{color:var(--red)}
+.cell{min-height:clamp(64px,10vw,128px);min-width:0;padding:6px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;flex-direction:column;gap:4px}
+.cell.blank{border:0;background:none}
+.cell.past{background:#F1F2F4;border-color:#F1F2F4;opacity:.8}
+.cell.closed{background:#F6F7F9;border-style:dashed;border-color:var(--line2)}
+.cell.has-mine{border-color:#5EEAD4}
+.cell.sel{border-color:var(--accent)}
+.cell-date{flex:1 1 auto;width:100%;min-height:30px;padding:0;border:0;background:none;color:inherit;display:flex;align-items:flex-start;gap:6px;cursor:pointer;text-align:left}
+.cell-date:disabled{cursor:default}
+.num{min-width:30px;height:30px;padding:0 4px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:500}
+.past .num{color:var(--muted);font-weight:400}
+.num.wkend{color:var(--red)}
+.num.is-today{background:var(--accent);color:#fff;font-weight:700}
+.today-tag{font-size:12px;font-weight:700;color:var(--accent);line-height:30px}
+.closed-tag{font-size:11px;font-weight:700;color:var(--muted)}
+.chips{display:flex;flex-direction:column;gap:3px}
+.chip{display:block;width:100%;min-height:22px;padding:1px 5px;border:1.5px solid transparent;border-radius:6px;font-size:11px;font-weight:500;line-height:1.4;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.chip.approved{background:var(--gray-bg);color:var(--gray-ink)}
+.chip.pending{background:var(--amber-bg);color:var(--amber-ink)}
+.chip.mine{background:var(--mine-bg);color:var(--mine-ink)}
+.chip.overlap{border-color:var(--red)}
+.more,.compact{align-self:flex-start;border:0;background:none;padding:0 2px;min-height:22px;font-size:11px;font-weight:700;color:var(--ink2);text-decoration:underline;cursor:pointer}
+.compact{display:none}
+@media (max-width:720px){.chips{display:none}.compact{display:block}}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--ink2)}
+.legend span{display:flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* 步驟 */
+.steps{margin:0;padding:0;list-style:none;display:flex;align-items:center;gap:10px;font-size:15px}
+.steps li{display:flex;align-items:center;gap:8px;color:var(--ink2)}
+.steps li.on{color:var(--ink);font-weight:700}
+.steps .dot{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:var(--line);color:var(--ink2)}
+.steps li.on .dot,.steps li.done .dot{background:var(--accent);color:#fff}
+.steps .bar{width:36px;height:2px;background:var(--line2)}
+
+/* 選時段 */
+.strip-wrap{overflow-x:auto;padding-bottom:6px}
+.strip{display:flex;gap:8px;width:max-content}
+.day{width:78px;min-height:92px;padding:8px 4px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+.day small{font-size:12px;color:var(--ink2);font-weight:500}
+.day b{font-size:20px;line-height:1.1}
+.day.low small{color:#B45309}
+.day:disabled{background:#F1F2F4;border-color:#F1F2F4;color:var(--muted);cursor:not-allowed}
+.day:disabled small{color:var(--muted)}
+.day.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.day.on small{color:#E6F4F2}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.slot{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.slot input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.slot .t{font-size:17px;font-weight:500;font-variant-numeric:tabular-nums}
+.slot.blocked{background:#F6F7F9;border-color:#F1F2F4;color:var(--muted);cursor:not-allowed}
+.slot.s-pending{background:#FFFBEB;border-color:var(--amber-line)}
+.slot.cover{background:#FAF5FF;border-color:var(--prio-line)}
+.slot.on{background:var(--accent-bg);border-color:var(--accent)}
+.slot.on.cover{background:#F5F3FF;border-color:#7C3AED}
+.tag{padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.t-free{background:#ECFDF5;color:#047857}
+.t-pending{background:var(--amber-bg);color:var(--amber-ink)}
+.t-approved{background:var(--gray-bg);color:var(--gray-ink)}
+.t-mine{background:var(--mine-bg);color:var(--mine-ink)}
+.t-past{background:#F1F2F4;color:var(--ink2)}
+.t-cover{background:var(--prio-bg);color:var(--prio-ink)}
+.t-on{background:var(--accent);color:#fff}
+.t-on-cover{background:var(--prio-ink);color:#fff}
+.sticky{position:sticky;bottom:12px;background:#111827;color:#fff;border-radius:16px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.sticky .muted{color:#D1D5DB;font-size:13px}
+.sticky .btn{background:transparent;color:#fff;border-color:#4B5563}
+.sticky .btn.go{background:#2DD4BF;border-color:#2DD4BF;color:#042F2E;font-weight:700}
+.sticky .btn.go:disabled{background:#374151;border-color:#374151;color:#9CA3AF;opacity:1}
+
+/* 視窗 */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.dialog{width:100%;max-width:760px;max-height:92vh;background:#fff;border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
+.dialog.sm{max-width:520px}
+.dlg-head{padding:18px 16px 14px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dlg-body{flex:1 1 auto;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:12px}
+.dlg-foot{padding:16px 24px 20px;border-top:1px solid var(--line);background:#FAFAFA;display:flex;flex-direction:column;gap:14px}
+.rules{white-space:pre-line;line-height:1.85;color:#1F2937}
+.run{border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.run.on{border-color:var(--accent);background:var(--accent-bg)}
+dl.info{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px 18px}
+dl.info dt{font-size:13px;color:var(--ink2)}
+dl.info dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.box{padding:10px 14px;border-radius:10px;background:var(--bg);line-height:1.6;white-space:pre-line}
+
+/* 後台 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.stat.hot{background:#FFFBEB;border-color:var(--amber-line)}
+.stat b{display:block;font-size:30px;font-variant-numeric:tabular-nums}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:#fff;cursor:pointer;font-weight:500}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.app-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.app-card.pending{border-color:var(--amber-line)}
+.confirm{padding:14px 16px;border-radius:12px;display:flex;flex-direction:column;gap:10px}
+.confirm.ok{background:var(--accent-bg);border:1px solid #99F6E4;color:#134E4A}
+.confirm.no{background:var(--red-bg);border:1px solid var(--red-line);color:#991B1B}
+.empty{padding:32px;border-radius:14px;background:#fff;border:1px dashed var(--line2);text-align:center;color:var(--ink2)}
+.spin{color:var(--ink2);padding:40px 0;text-align:center}
+</style>
+<style>
+.authbar{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px;font-size:14px;color:var(--ink2)}
+.authbar .btn{min-height:44px}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* ===== 部署時只需要改這兩個值（見《部署說明》） ===== */
+const API_URL = 'https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec';                                   // Apps Script 網頁應用程式網址（結尾 /exec）
+const GOOGLE_CLIENT_ID = '318539943984-e6amlue35s5m437o5mnpmt5akq4p0p0a.apps.googleusercontent.com'; // Google Cloud 的 OAuth 用戶端 ID
+/* ===== 以下不需修改：登入，以及把原本的 gas.run 改成呼叫 API ===== */
+(function () {
+  const KEY = 'b1f14_idt';
+  const text = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const payload = t => { try { return JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } };
+  const token = () => {
+    const t = sessionStorage.getItem(KEY), p = t && payload(t);
+    if (p && p.exp * 1000 > Date.now() + 30000) return t;
+    sessionStorage.removeItem(KEY); return '';
+  };
+  const call = (fn, args) => {
+    if (API_URL.indexOf('https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec') === 0) return Promise.reject(new Error('尚未設定 API_URL，請依部署說明填入 Apps Script 網址。'));
+    return fetch(API_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args, token: token() }) })
+      .then(r => r.text())
+      .then(t => { let j; try { j = JSON.parse(t); } catch (e) { throw new Error('後端沒有回傳資料，請確認 Apps Script 已部署，且「誰可以存取」是「所有人」。'); } if (j.error) throw new Error(j.error); return j.r; },
+            () => { throw new Error('無法連線到後端，請檢查網路後再試。'); });
+  };
+  const runner = (ok, no) => new Proxy({}, { get: (_, name) => {
+    if (name === 'withSuccessHandler') return f => runner(f, no);
+    if (name === 'withFailureHandler') return f => runner(ok, f);
+    return (...args) => { call(String(name), args).then(r => { if (ok) ok(r); }, e => { if (no) no(e); else console.error(e); }); };
+  } });
+  window.gas = { run: runner(), url: { getLocation: cb => cb({ parameter: Object.fromEntries(new URLSearchParams(location.search)) }) } };
+
+  function drawAuth() {
+    const el = document.getElementById('authbar'); if (!el) return;
+    const t = token(), p = t && payload(t);
+    if (p) {
+      el.innerHTML = '<span>已登入：<b>' + text(p.email) + '</b></span><button type="button" class="btn outline" id="signout">登出</button>';
+      document.getElementById('signout').onclick = () => { sessionStorage.removeItem(KEY); try { google.accounts.id.disableAutoSelect(); } catch (e) {} location.reload(); };
+      return;
+    }
+    el.innerHTML = '<span>請用學校 Google 帳號（@gm.ntpu.edu.tw）登入</span><div id="gbtn"></div>';
+    let n = 0;
+    const wait = setInterval(() => {
+      if (window.google && google.accounts && google.accounts.id) {
+        clearInterval(wait);
+        google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: false, callback: r => { sessionStorage.setItem(KEY, r.credential); location.reload(); } });
+        google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: 'outline', size: 'large', locale: 'zh-TW' });
+      } else if (++n > 50) { clearInterval(wait); el.innerHTML += '<span>Google 登入元件載入失敗，請改用 Safari 或 Chrome 開啟，並檢查網路。</span>'; }
+    }, 200);
+  }
+  document.addEventListener('DOMContentLoaded', drawAuth);
+})();
+</script>
+
+</head>
+<body>
+<div class="wrap">
+  <div id="authbar" class="authbar"></div>
+  <h1 class="title">三峽校區學生會圖B1F14會議空間借用系統</h1>
+  <div id="app"><p class="spin">載入中…</p></div>
+</div>
+<div id="modal"></div>
+
+<script>
+/* ===================== 常數 ===================== */
+const ROLES = [
+  { id: '學生會', unitLabel: '部門', options: ['秘書處', '學權暨學術部', '公關部', '新聞部', '活動部', '財務部', '國際部', '選委會'] },
+  { id: '學生議會', unitLabel: '所屬單位', options: ['秘書處', '法制委員會', '財務委員會', '文務委員會', '學生議員'] },
+  { id: '學生法院', unitLabel: '所屬單位', options: ['書記處', '學生法官'] },
+  { id: '本校社團或學生自治組織', unitLabel: '組織名稱', options: null }
+];
+const CLUB = '本校社團或學生自治組織';
+const PRIORITY_ROLES = ['學生會', '學生議會', '學生法院'];
+const WK = '日一二三四五六';
+const RULES = `一、為妥善管理校內、外各單位使用圖B1F14會議空間，依國立臺北大學學生自治會三峽校區聯合辦公空間管理條例第五條訂定本辦法。
+二、圖B1F14會議空間經課外組撥用學生自治會管理，並由三峽校區學生會秘書處負責之。
+三、本空間係學生會、學生議會、學生法院共用空間，借用應以前開機關優先之，其他單位應禮讓。
+　如遇特殊原因（如：傳染病或天然災害等)，借用單位須配合執行相關措施。
+四、具申請借用資格者如下所列：
+　（一）學生會及其下轄單位。
+　（二）學生議會及其下轄單位。
+　（三）學生法院及其下轄單位。
+　（四）學生議員。
+　（五）學生法官。
+　（六）經本校學生社團輔導辦法成立之社團或學生自治組織。
+　本校學生不得以個人為單位申請借用，但前項具申請借用資格者代為借用者不在此限。
+五、借用單位須於借用時段前一個月至前一日，依學生會秘書處公告之申請流程申請登記。學生會秘書處應即時將借用情形公布。
+六、借用單位應負場地及所有物品之安全、整潔、損害賠償或恢復原狀之責任。借用單位每次使用結束時，須將場地恢復原狀。
+七、本場地禁止以下事項：
+　(一)本場地禁止留宿過夜。
+　(二)本場地禁止炊膳。
+　(三)本場地禁止用火活動。
+　(四)本場地禁止赤膊裸體、吸菸、嚼食檳榔、攜帶危險及違禁物品。
+　(五)本場地禁止放置任何私人物品或社團器材，如遺失自行負責。
+八、借用者有下列情形之一者，學生會得給予警告、撤銷借用申請；累犯者，得不再允許其該學年度之借用申請：
+(一)違反第六條及第七條者。
+(二)登載不實之姓名、電話、借用單位名稱、等資料或有資料缺漏致影響其他需用單位借用權利者。
+九、本辦法經學生會長核定後實施，並送學生議會備查。`;
+
+/* ===================== 狀態 ===================== */
+const $app = document.getElementById('app');
+const $modal = document.getElementById('modal');
+let D = null; // 伺服器資料
+const S = {
+  init: false, y: 0, m: 0, sel: '', view: 'calendar', modal: null, agreed: false,
+  role: '', unit: '', contact: '', phone: '', err1: '', block: '',
+  dateKey: '', picked: [], reason: '', err2: '', busy: false,
+  toast: '', mine: null, mineErr: '', cancelCode: '', mineMsg: '', loadErr: ''
+};
+
+/* ===================== 小工具 ===================== */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const pad = n => (n < 10 ? '0' : '') + n;
+const keyOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const parseKey = k => { const x = k.split('-').map(Number); return new Date(x[0], x[1] - 1, x[2]); };
+const diff = k => Math.round((parseKey(k) - parseKey(D.today)) / 864e5);
+const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); };
+const label = k => { const d = parseKey(k); return d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日（' + WK[d.getDay()] + '）'; };
+const slotText = i => pad(9 + i * 2) + ':00–' + pad(11 + i * 2) + ':00';
+const isPrio = (role, unit) => !!unit && PRIORITY_ROLES.indexOf(role) >= 0;
+const closedNote = k => { const c = D.closed.find(x => x.date === k); return c ? (c.note || '不開放') : ''; };
+const curRole = () => ROLES.find(r => r.id === S.role) || null;
+const errMsg = e => (e && e.message) ? e.message : String(e);
+
+function slotStatus(k) {
+  const arr = ['free', 'free', 'free', 'free', 'free', 'free'];
+  D.bookings.forEach(b => {
+    if (b.date !== k) return;
+    b.slots.forEach(i => { arr[i] = (b.mine && b.status === 'pending') ? 'mine' : b.status; });
+  });
+  if (k === D.today) arr.forEach((s, i) => { if (s === 'free' && D.nowHour >= 9 + i * 2) arr[i] = 'past'; });
+  return arr;
+}
+
+/** 同一單位、同一狀態的連續時段合併 */
+function runs(k) {
+  const map = {}, order = [];
+  D.bookings.forEach(b => {
+    if (b.date !== k) return;
+    const disp = (b.mine && b.status === 'pending') ? 'mine' : b.status;
+    const key = b.who + '|' + disp;
+    if (!map[key]) { map[key] = { who: b.who, disp: disp, slots: {}, items: {} }; order.push(key); }
+    b.slots.forEach(i => { map[key].slots[i] = true; (map[key].items[i] = map[key].items[i] || []).push(b); });
+  });
+  const out = [];
+  order.forEach(key => {
+    const g = map[key]; let cur = null;
+    for (let i = 0; i < 6; i++) {
+      if (!g.slots[i]) { cur = null; continue; }
+      if (!cur) { cur = { start: i, end: i + 1, who: g.who, disp: g.disp, items: [] }; out.push(cur); } else cur.end = i + 1;
+      g.items[i].forEach(b => { if (cur.items.indexOf(b) < 0) cur.items.push(b); });
+    }
+  });
+  out.forEach(r => {
+    r.priority = r.items.some(b => b.priority);
+    r.overlap = out.some(o => o !== r && o.start < r.end && r.start < o.end);
+  });
+  out.sort((a, b) => (a.start - b.start) || ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)));
+  return out;
+}
+const DISP = { approved: '已借出', pending: '待審核', mine: '你的申請' };
+const shortWho = r => r.disp === 'mine' ? '你的申請' : (r.who.split('・')[1] || r.who);
+const runAria = r => pad(9 + r.start * 2) + ':00–' + pad(9 + r.end * 2) + ':00，' + r.who + '，' + DISP[r.disp] + (r.overlap ? '，時段重疊' : '');
+
+/* ===================== 資料載入 ===================== */
+function load(after) {
+  gas.run
+    .withSuccessHandler(d => {
+      D = d; S.loadErr = '';
+      if (!S.init) { const t = parseKey(D.today); S.y = t.getFullYear(); S.m = t.getMonth(); S.init = true; }
+      if (after) after();
+      render();
+    })
+    .withFailureHandler(e => { S.loadErr = errMsg(e); render(); })
+    .getPublicData();
+}
+
+function loadMine() {
+  S.mine = null; S.mineErr = '';
+  render();
+  gas.run
+    .withSuccessHandler(list => { S.mine = list; render(); })
+    .withFailureHandler(e => { S.mineErr = errMsg(e); S.mine = []; render(); })
+    .getMyApplications();
+}
+
+/* ===================== 畫面 ===================== */
+function render() {
+  if (S.loadErr && !D) { $app.innerHTML = '<p class="notice n-err">無法載入資料：' + esc(S.loadErr) + '</p>'; return; }
+  if (!D) return;
+  if (S.view === 'form') $app.innerHTML = viewForm();
+  else if (S.view === 'slots') $app.innerHTML = viewSlots();
+  else if (S.view === 'mine') $app.innerHTML = viewMine();
+  else $app.innerHTML = viewCalendar();
+  renderModal();
+}
+
+function viewCalendar() {
+  const first = new Date(S.y, S.m, 1).getDay(), days = new Date(S.y, S.m + 1, 0).getDate();
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += '<div class="cell blank"></div>';
+  for (let d = 1; d <= days; d++) {
+    const k = keyOf(new Date(S.y, S.m, d)), dd = diff(k), rs = runs(k), cl = closedNote(k), dow = (first + d - 1) % 7;
+    const chips = rs.slice(0, 3).map((r, ri) =>
+      '<button class="chip ' + r.disp + (r.overlap ? ' overlap' : '') + '" data-act="detail" data-k="' + k + '" data-r="' + ri + '" title="' + esc(runAria(r)) + '" aria-label="' + esc(runAria(r)) + '（查看詳情）">' +
+      pad(9 + r.start * 2) + '–' + pad(9 + r.end * 2) + ' ' + esc(shortWho(r)) + '</button>').join('');
+    cells += '<div class="cell' + (dd < 0 ? ' past' : '') + (cl && dd >= 0 ? ' closed' : '') + (rs.some(r => r.disp === 'mine') ? ' has-mine' : '') + (k === S.sel ? ' sel' : '') + '">' +
+      '<button class="cell-date" data-act="sel" data-k="' + k + '"' + (dd < 0 ? ' disabled' : '') + ' aria-label="' + esc(label(k)) + (dd === 0 ? '，今天' : '') + '">' +
+      '<span class="num' + (dd === 0 ? ' is-today' : '') + ((dow === 0 || dow === 6) && dd > 0 ? ' wkend' : '') + '">' + d + '</span>' +
+      (dd === 0 ? '<span class="today-tag">今天</span>' : '') + '</button>' +
+      (cl ? '<span class="closed-tag">' + esc(cl) + '</span>' : '') +
+      '<div class="chips">' + chips + (rs.length > 3 ? '<button class="more" data-act="detail" data-k="' + k + '" data-r="-1">+' + (rs.length - 3) + ' 筆</button>' : '') + '</div>' +
+      (rs.length ? '<button class="compact" data-act="detail" data-k="' + k + '" data-r="-1" aria-label="查看 ' + esc(label(k)) + ' 的借用">' + rs.length + ' 筆</button>' : '') +
+      '</div>';
+  }
+  let total = first + days;
+  while (total % 7) { cells += '<div class="cell blank"></div>'; total++; }
+
+  const loggedIn = !!D.user.email;
+  return (S.toast ? '<div class="notice n-warn row between" role="status"><span>' + esc(S.toast) + '</span><button class="btn icon" data-act="closeToast" aria-label="關閉通知">✕</button></div>' : '') +
+    (!loggedIn ? '<p class="notice n-err">請先在右上方用學校 Google 帳號（@gm.ntpu.edu.tw）登入，才能預約或查詢申請。</p>' : '') +
+    '<div class="row between"><h2>' + S.y + ' 年 ' + (S.m + 1) + ' 月</h2><div class="row">' +
+    '<button class="btn" data-act="today">今天</button>' +
+    '<button class="btn icon" data-act="prev" aria-label="上個月">‹</button>' +
+    '<button class="btn icon" data-act="next" aria-label="下個月">›</button></div></div>' +
+    '<section class="cal"><div class="grid7">' + WK.split('').map((w, i) => '<div class="wd' + (i === 0 || i === 6 ? ' we' : '') + '">' + w + '</div>').join('') + '</div>' +
+    '<div class="grid7">' + cells + '</div></section>' +
+    '<div class="row between"><div class="legend">' +
+    '<span><i class="sw" style="background:#0F766E;border-radius:999px"></i>今天</span>' +
+    '<span><i class="sw" style="background:#FEF3C7"></i>待審核</span>' +
+    '<span><i class="sw" style="background:#E5E7EB"></i>已借出</span>' +
+    '<span><i class="sw" style="background:#CCFBF1"></i>你的申請</span>' +
+    '<span><i class="sw" style="border:2px solid #B42318"></i>時段重疊</span>' +
+    '<span><i class="sw" style="border:2px dashed #D1D5DB;background:#F6F7F9"></i>不開放（例假日、國定假日）</span></div>' +
+    '<p>已選擇：<b>' + (S.sel ? esc(label(S.sel)) : '尚未選擇日期') + '</b></p></div>' +
+    '<div class="row center" style="flex-direction:column;gap:10px;padding-top:6px">' +
+    '<div class="row center"><button class="btn big outline" data-act="mine"' + (loggedIn ? '' : ' disabled') + '>查詢／取消我的申請</button>' +
+    '<button class="btn big primary" data-act="book"' + (loggedIn ? '' : ' disabled') + '>我要預約 →</button></div>' +
+    '<p class="muted" style="text-align:center;line-height:1.6">須於借用日前 3 天以上申請<br>學生會、學生議會、學生法院所屬單位（含學生議員、學生法官）不在此限</p></div>' +
+    (D.user.isAdmin ? '<div class="row center" style="border-top:1px solid #E5E7EB;padding-top:12px"><a class="link" href="' + esc(D.adminUrl) + '">秘書處後台</a></div>' : '');
+}
+
+function steps(n) {
+  return '<div class="row between"><h2>我要預約</h2><ol class="steps" aria-label="申請步驟">' +
+    '<li class="' + (n === 1 ? 'on' : 'done') + '"><span class="dot">1</span>申請資料</li><li class="bar" aria-hidden="true"></li>' +
+    '<li class="' + (n === 2 ? 'on' : '') + '"><span class="dot">2</span>選擇時段</li></ol></div>';
+}
+
+function viewForm() {
+  const cur = curRole();
+  let unitField;
+  if (!cur) unitField = '<select id="unit" class="input" disabled><option>請先選擇身分別</option></select>';
+  else if (cur.options) unitField = '<select id="unit" class="input" data-field="unit"><option value="">請選擇</option>' +
+    cur.options.map(o => '<option' + (o === S.unit ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+  else unitField = '<input id="unit" class="input" data-field="unit" maxlength="50" value="' + esc(S.unit) + '" placeholder="請輸入社團或組織的完整名稱">';
+
+  return steps(1) + '<div class="narrow"><div class="card" style="gap:26px">' +
+    '<fieldset><legend class="legend-title">1. 身分別 <span class="req">*</span></legend><div class="choices">' +
+    ROLES.map(r => '<label class="choice' + (r.id === S.role ? ' on' : '') + '"><input type="radio" name="role" value="' + esc(r.id) + '"' + (r.id === S.role ? ' checked' : '') + '>' + esc(r.id) + '</label>').join('') +
+    '</div></fieldset>' +
+    '<div class="field"><label for="unit">2. ' + (cur ? cur.unitLabel : '部門／單位') + ' <span class="req">*</span></label>' + unitField + '</div>' +
+    '<div class="field"><label for="contact">3. 聯絡人及職銜 <span class="req">*</span></label><input id="contact" class="input" data-field="contact" maxlength="50" value="' + esc(S.contact) + '" placeholder="例：王小明／活動部部長"></div>' +
+    '<div class="field"><label for="phone">4. 聯絡方式 <span class="req">*</span></label><input id="phone" class="input" data-field="phone" maxlength="50" value="' + esc(S.phone) + '" placeholder="手機或 LINE ID"></div>' +
+    '<p class="muted">審核結果會寄到你的學校信箱：<b>' + esc(D.user.email) + '</b></p>' +
+    (S.block ? '<div class="notice n-err" role="alert"><b>此單位已有一筆尚未使用的申請</b><br>' + esc(S.block) + '<div style="margin-top:10px"><button class="btn danger-outline" data-act="mine">查詢／取消原申請</button></div></div>' : '') +
+    (S.err1 ? '<p class="notice n-err" role="alert">請填寫所有必填欄位：' + esc(S.err1) + '</p>' : '') +
+    '<div class="row end"><button class="btn" data-act="toCalendar">取消</button><button class="btn primary" data-act="next1">下一步：選擇時段 →</button></div>' +
+    '</div></div>';
+}
+
+function viewSlots() {
+  const prio = isPrio(S.role, S.unit.trim());
+  let strip = '';
+  for (let j = 0; j <= 30; j++) {
+    const k = addDays(D.today, j), st = slotStatus(k), cl = closedNote(k);
+    const free = st.filter(x => x === 'free').length;
+    const open = prio ? st.filter(x => x !== 'past').length : free;
+    const tooSoon = !prio && j < 3, full = open === 0;
+    const dis = tooSoon || full || !!cl;
+    const d = parseKey(k);
+    const left = cl ? '不開放' : tooSoon ? '未滿 3 日' : full ? '已滿' : (free === 0 ? '可覆蓋' : '剩 ' + free + ' 段');
+    strip += '<button class="day' + (k === S.dateKey ? ' on' : '') + (!dis && free <= 2 ? ' low' : '') + '" data-act="pickDate" data-k="' + k + '"' + (dis ? ' disabled' : '') +
+      ' aria-pressed="' + (k === S.dateKey) + '" aria-label="' + esc(label(k) + '，' + left) + '"><small>' + (j === 0 ? '今天' : '週' + WK[d.getDay()]) + '</small><b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b><small>' + left + '</small></button>';
+  }
+
+  let slotsHtml = '<p class="notice" style="background:#F1F2F4;color:#4B5563">請先在上方選擇借用日期</p>';
+  const valid = validPicked(prio);
+  if (S.dateKey) {
+    const TAG = { free: ['可申請', 't-free'], pending: ['待審核', 't-pending'], approved: ['已借出', 't-approved'], mine: ['你的申請', 't-mine'], past: ['時段已過', 't-past'] };
+    slotsHtml = '<div class="slots">' + slotStatus(S.dateKey).map((st, i) => {
+      const occupied = st !== 'free' && st !== 'past';
+      const blocked = st === 'past' || (occupied && !prio);
+      const on = !blocked && S.picked.indexOf(i) >= 0;
+      const tag = on ? (occupied ? ['覆蓋申請', 't-on-cover'] : ['已勾選', 't-on']) : (occupied && prio ? [TAG[st][0] + '・可覆蓋', 't-cover'] : TAG[st]);
+      const cls = 'slot' + (blocked ? ' blocked' : '') + (st === 'pending' && !prio ? ' s-pending' : '') + (occupied && prio ? ' cover' : '') + (on ? ' on' : '');
+      return '<label class="' + cls + '"><span class="row" style="gap:12px"><input type="checkbox" data-slot="' + i + '"' + (on ? ' checked' : '') + (blocked ? ' disabled' : '') + '><span class="t">' + slotText(i) + '</span></span><span class="tag ' + tag[1] + '">' + tag[0] + '</span></label>';
+    }).join('') + '</div>';
+  }
+
+  return steps(2) + '<div class="mid">' +
+    (prio ? '<div class="notice n-prio" role="note"><b>' + esc(S.role + '・' + S.unit) + ' 為優先單位</b><br>不受 3 天前申請限制，且可勾選他人已申請的時段（紫色標示）。重疊的申請會一併顯示，由學生會秘書處協調處理。</div>' : '') +
+    '<section class="card"><div class="row between"><h3>借用日期</h3><p class="muted">' +
+    (prio ? '優先單位可申請今天起 30 天內；一次申請一天' : '須提前 3 天申請，最遠可申請 30 天後；一次申請一天') + '</p></div>' +
+    '<div class="strip-wrap"><div class="strip">' + strip + '</div></div></section>' +
+    '<section class="card"><div class="row between"><h3>' + (S.dateKey ? esc(label(S.dateKey)) + '・' : '') + '借用時段</h3><p class="muted">每 2 小時為一個時段，可複選</p></div>' + slotsHtml + '</section>' +
+    (valid.length ? '<section class="card" style="border:2px solid #0F766E"><div class="field"><label for="reason">借用事由 <span class="req">*</span></label>' +
+      '<p class="muted">請簡述活動或會議內容、預計人數。</p>' +
+      '<textarea id="reason" class="input" rows="4" maxlength="500" data-field="reason" placeholder="例：活動部期末幹部會議，約 12 人">' + esc(S.reason) + '</textarea></div></section>' : '') +
+    (S.err2 ? '<p class="notice n-err" role="alert">' + esc(S.err2) + '</p>' : '') +
+    '<section class="sticky"><div><p class="muted" id="barHint">' + barHint(valid) + '</p><p style="font-weight:700">' +
+    (valid.length ? esc(label(S.dateKey)) + '　' + valid.map(slotText).join('、') : '尚未勾選時段') + '</p></div>' +
+    '<div class="row"><button class="btn" data-act="back1">上一步</button><button class="btn go" id="goBtn" data-act="submit"' + (canSubmit(valid) ? '' : ' disabled') + '>' + (S.busy ? '送出中…' : '送出申請') + '</button></div></section>' +
+    '</div>';
+}
+
+function validPicked(prio) {
+  if (!S.dateKey) return [];
+  const st = slotStatus(S.dateKey);
+  return S.picked.filter(i => st[i] !== 'past' && (prio || st[i] === 'free')).sort((a, b) => a - b);
+}
+function canSubmit(valid) { return !S.busy && valid.length > 0 && S.reason.trim().length > 0; }
+function barHint(valid) { return valid.length === 0 ? '請勾選至少一個時段' : (S.reason.trim() ? '確認無誤即可送出' : '請填寫借用事由'); }
+function updateBar() {
+  const valid = validPicked(isPrio(S.role, S.unit.trim()));
+  const b = document.getElementById('goBtn'), h = document.getElementById('barHint');
+  if (b) b.disabled = !canSubmit(valid);
+  if (h) h.textContent = barHint(valid);
+}
+
+function viewMine() {
+  const STC = { '待審核': 'b-pending', '已核准': 'b-approved', '已駁回': 'b-rejected', '已取消': 'b-cancelled' };
+  let body;
+  if (S.mine === null) body = '<p class="spin">載入中…</p>';
+  else if (S.mineErr) body = '<p class="notice n-err">' + esc(S.mineErr) + '</p>';
+  else if (!S.mine.length) body = '<p class="empty">你目前沒有任何申請紀錄。</p>';
+  else body = S.mine.map(a =>
+    '<article class="app-card"><div class="row between" style="align-items:flex-start"><div><p class="muted">申請編號 ' + esc(a.code) + '</p><h3>' + esc(a.dateLabel) + '</h3><p>' + a.slots.map(slotText).join('、') + '</p></div>' +
+    '<span class="badge ' + (STC[a.status] || '') + '">' + esc(a.status) + '</span></div>' +
+    '<p>' + esc(a.who) + '</p><p class="box">' + esc(a.reason) + '</p>' +
+    (a.status === '已駁回' && a.note ? '<p class="notice n-err">駁回原因：' + esc(a.note) + '</p>' : '') +
+    (a.canCancel ? (S.cancelCode === a.code
+      ? '<div class="confirm no" role="alertdialog"><b>確定要取消這筆申請嗎？取消後時段會立即釋出，無法復原。</b><div class="row end"><button class="btn" data-act="cancelNo">保留申請</button><button class="btn danger" data-act="cancelYes" data-code="' + esc(a.code) + '">確認取消</button></div></div>'
+      : '<div class="row end"><button class="btn danger-outline" data-act="cancelAsk" data-code="' + esc(a.code) + '">取消這筆申請</button></div>') : '') +
+    '</article>').join('');
+  return '<div class="narrow"><div class="row between"><h2>我的申請</h2><button class="btn" data-act="toCalendar">← 返回月曆</button></div>' +
+    '<p class="muted">登入帳號：' + esc(D.user.email) + '</p>' +
+    (S.mineMsg ? '<p class="notice n-ok" role="status">' + esc(S.mineMsg) + '</p>' : '') + body + '</div>';
+}
+
+function renderModal() {
+  if (S.modal === 'rules') {
+    $modal.innerHTML = '<div class="overlay"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="rt">' +
+      '<div class="dlg-head"><div><h2 id="rt" style="font-size:20px">圖B1F14會議空間管理辦法</h2><p class="muted">申請前請詳閱以下辦法</p></div></div>' +
+      '<div class="dlg-body" tabindex="0"><div class="rules">' + esc(RULES) + '</div></div>' +
+      '<div class="dlg-foot"><p class="notice n-err"><b>※ 每次只能佔用一天，重複申請將被刪除。</b><br>（學生會、學生議會、學生法院所屬單位不在此限）</p>' +
+      '<label class="row" style="gap:12px;min-height:44px;cursor:pointer;font-weight:500"><input type="checkbox" id="agree" style="width:20px;height:20px;accent-color:#0F766E"' + (S.agreed ? ' checked' : '') + '>我已詳閱並同意遵守上述管理辦法</label>' +
+      '<div class="row end"><button class="btn" data-act="closeModal">取消</button><button class="btn primary" id="agreeGo" data-act="agreeGo"' + (S.agreed ? '' : ' disabled') + '>同意並開始申請</button></div></div>' +
+      '</div></div>';
+  } else if (S.modal && S.modal.k) {
+    const rs = runs(S.modal.k);
+    const items = rs.map((r, ri) => {
+      const reasons = [];
+      r.items.forEach(b => { if (b.reason && reasons.indexOf(b.reason) < 0) reasons.push(b.reason); });
+      return '<section class="run' + (ri === S.modal.r ? ' on' : '') + '"><div class="row between"><b style="font-size:18px">' + pad(9 + r.start * 2) + ':00 – ' + pad(9 + r.end * 2) + ':00</b><span class="row" style="gap:6px">' +
+        (r.priority ? '<span class="badge b-prio">優先單位</span>' : '') + (r.overlap ? '<span class="badge b-overlap">時段重疊</span>' : '') +
+        '<span class="badge ' + (r.disp === 'approved' ? 'b-cancelled' : r.disp === 'mine' ? 'b-new' : 'b-pending') + '">' + (r.disp === 'mine' ? '你的申請・待審核' : DISP[r.disp]) + '</span></span></div>' +
+        '<dl class="info"><div><dt>申請單位</dt><dd>' + esc(r.who) + '</dd></div><div><dt>借用時數</dt><dd>' + ((r.end - r.start) * 2) + ' 小時</dd></div></dl>' +
+        '<div><p class="muted">借用事由</p><p class="box">' + esc(reasons.join('\n') || '—') + '</p></div></section>';
+    }).join('');
+    $modal.innerHTML = '<div class="overlay"><div class="dialog sm" role="dialog" aria-modal="true" aria-labelledby="dt">' +
+      '<div class="dlg-head"><div><p class="muted">借用詳情</p><h2 id="dt" style="font-size:20px">' + esc(label(S.modal.k)) + '</h2></div><button class="btn icon" style="border:0" data-act="closeModal" aria-label="關閉">✕</button></div>' +
+      '<div class="dlg-body">' + (items || '<p class="empty">這天目前沒有借用紀錄</p>') + '</div></div></div>';
+  } else {
+    $modal.innerHTML = '';
+  }
+}
+
+/* ===================== 動作 ===================== */
+const ACT = {
+  prev() { S.m--; if (S.m < 0) { S.m = 11; S.y--; } render(); },
+  next() { S.m++; if (S.m > 11) { S.m = 0; S.y++; } render(); },
+  today() { const t = parseKey(D.today); S.y = t.getFullYear(); S.m = t.getMonth(); render(); },
+  sel(ds) { S.sel = ds.k; render(); },
+  closeToast() { S.toast = ''; render(); },
+  detail(ds) { S.modal = { k: ds.k, r: Number(ds.r) }; renderModal(); },
+  closeModal() { S.modal = null; renderModal(); },
+  book() { S.modal = 'rules'; S.agreed = false; S.toast = ''; renderModal(); },
+  agreeGo() {
+    if (!S.agreed) return;
+    S.modal = null;
+    S.view = 'form'; S.err1 = ''; S.block = ''; S.picked = []; S.reason = ''; S.err2 = '';
+    S.dateKey = (S.sel && diff(S.sel) >= 0) ? S.sel : '';
+    render(); window.scrollTo(0, 0);
+  },
+  toCalendar() { S.view = 'calendar'; S.mineMsg = ''; render(); },
+  next1() {
+    const cur = curRole(), missing = [];
+    if (!cur) missing.push('身分別');
+    if (!S.unit.trim()) missing.push(cur ? cur.unitLabel : '單位');
+    if (!S.contact.trim()) missing.push('聯絡人及職銜');
+    if (!S.phone.trim()) missing.push('聯絡方式');
+    S.err1 = missing.join('、'); S.block = '';
+    if (missing.length) { render(); return; }
+    if (S.role === CLUB) {
+      const who = S.role + '・' + S.unit.trim();
+      const held = D.bookings.find(b => b.who.toLowerCase() === who.toLowerCase() && diff(b.date) >= 0);
+      if (held) {
+        S.block = '「' + who + '」已申請 ' + label(held.date) + ' ' + held.slots.map(slotText).join('、') + '（' + (held.status === 'approved' ? '已核准' : '待審核') + '）。依管理辦法每次只能佔用一天，請待該次使用完畢，或先取消原申請後再提出新申請。';
+        render(); return;
+      }
+    }
+    const prio = isPrio(S.role, S.unit.trim());
+    if (S.dateKey && (!prio && diff(S.dateKey) < 3 || closedNote(S.dateKey))) S.dateKey = '';
+    S.picked = []; S.err2 = '';
+    S.view = 'slots'; render(); window.scrollTo(0, 0);
+  },
+  back1() { S.view = 'form'; S.err2 = ''; render(); },
+  pickDate(ds) { S.dateKey = ds.k; S.picked = []; S.err2 = ''; render(); },
+  submit() {
+    const prio = isPrio(S.role, S.unit.trim());
+    const valid = validPicked(prio);
+    if (!canSubmit(valid)) return;
+    S.busy = true; S.err2 = ''; render();
+    const payload = { role: S.role, unit: S.unit.trim(), contact: S.contact.trim(), phone: S.phone.trim(), date: S.dateKey, slots: valid, reason: S.reason.trim() };
+    gas.run
+      .withSuccessHandler(res => {
+        const d = parseKey(res.date);
+        S.toast = '申請已送出（編號 ' + res.code + '）｜' + label(res.date) + '　' + res.slots.map(slotText).join('、') + '。確認信已寄至 ' + D.user.email + '，審核期間時段會先保留。';
+        Object.assign(S, { view: 'calendar', busy: false, role: '', unit: '', contact: '', phone: '', dateKey: '', picked: [], reason: '', y: d.getFullYear(), m: d.getMonth(), sel: res.date });
+        load(() => window.scrollTo(0, 0));
+      })
+      .withFailureHandler(e => { S.busy = false; S.err2 = errMsg(e); load(); })
+      .submitApplication(payload);
+  },
+  mine() { S.view = 'mine'; S.cancelCode = ''; S.mineMsg = ''; S.toast = ''; loadMine(); window.scrollTo(0, 0); },
+  cancelAsk(ds) { S.cancelCode = ds.code; S.mineMsg = ''; render(); },
+  cancelNo() { S.cancelCode = ''; render(); },
+  cancelYes(ds) {
+    S.cancelCode = ''; S.mine = null; render();
+    gas.run
+      .withSuccessHandler(list => { S.mine = list; S.mineMsg = '已取消申請 ' + ds.code + '，時段已釋出，並已通知學生會秘書處。'; load(); })
+      .withFailureHandler(e => { S.mineErr = errMsg(e); S.mine = []; render(); })
+      .cancelApplication(ds.code);
+  }
+};
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  const fn = ACT[b.dataset.act];
+  if (fn) fn(b.dataset, e);
+});
+document.addEventListener('input', e => {
+  const f = e.target.dataset && e.target.dataset.field;
+  if (!f) return;
+  S[f] = e.target.value;
+  if (f === 'unit') S.block = '';
+  if (f === 'reason') updateBar();
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.name === 'role') { S.role = t.value; S.unit = ''; S.block = ''; S.err1 = ''; render(); }
+  else if (t.id === 'agree') { S.agreed = t.checked; const g = document.getElementById('agreeGo'); if (g) g.disabled = !S.agreed; }
+  else if (t.dataset && t.dataset.slot !== undefined) {
+    const i = Number(t.dataset.slot), at = S.picked.indexOf(i);
+    if (t.checked && at < 0) S.picked.push(i);
+    if (!t.checked && at >= 0) S.picked.splice(at, 1);
+    S.picked.sort((a, b) => a - b);
+    render();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.modal) { S.modal = null; renderModal(); }
+});
+
+/* ===================== 啟動 ===================== */
+load(() => {
+  gas.url.getLocation(loc => {
+    if (loc && loc.parameter && loc.parameter.view === 'mine') ACT.mine();
+  });
+});
+</script>
+</body>
+</html>

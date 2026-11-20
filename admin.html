@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --line:#E5E7EB; --line2:#D1D5DB;
+  --ink:#111827; --ink2:#4B5563; --muted:#6B7280;
+  --accent:#0F766E; --accent-dk:#115E59; --accent-bg:#F0FDFA;
+  --red:#B42318; --red-bg:#FEF2F2; --red-line:#FECACA;
+  --amber-bg:#FEF3C7; --amber-ink:#92400E; --amber-line:#FDE68A;
+  --gray-bg:#E5E7EB; --gray-ink:#374151;
+  --mine-bg:#CCFBF1; --mine-ink:#115E59;
+  --prio-bg:#EDE9FE; --prio-ink:#5B21B6; --prio-line:#C4B5FD;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif;font-size:15px}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px;display:flex;flex-direction:column;gap:22px}
+.narrow{max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.mid{max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.title{margin:0;padding-bottom:18px;border-bottom:1px solid var(--line);font-size:clamp(21px,3vw,30px);line-height:1.35}
+h2{margin:0;font-size:26px}
+h3{margin:0;font-size:17px}
+p{margin:0}
+.muted{color:var(--ink2);font-size:14px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.end{justify-content:flex-end}
+.center{justify-content:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn:disabled{cursor:not-allowed;opacity:.55}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn.outline{border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
+.btn.danger-outline{border-color:var(--red);color:var(--red);font-weight:700}
+.btn.big{min-height:52px;padding:0 32px;font-size:17px;border-radius:12px}
+.btn.icon{width:44px;padding:0}
+.link{border:0;background:none;color:var(--accent);text-decoration:underline;cursor:pointer;min-height:44px;padding:0 8px;font-size:14px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.b-pending{background:var(--amber-bg);color:var(--amber-ink)}
+.b-approved{background:#DCFCE7;color:#166534}
+.b-rejected{background:#FEE2E2;color:#991B1B}
+.b-cancelled{background:#F3F4F6;color:#4B5563}
+.b-prio{background:var(--prio-bg);color:var(--prio-ink)}
+.b-overlap{background:#FEE2E2;color:#991B1B}
+.b-new{background:var(--mine-bg);color:var(--mine-ink)}
+.notice{padding:14px 16px;border-radius:12px;font-size:14px;line-height:1.65}
+.n-ok{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
+.n-warn{background:#FFFBEB;border:1px solid #FCD34D;color:#78350F}
+.n-err{background:var(--red-bg);border:1px solid var(--red-line);color:#991B1B}
+.n-prio{background:#F5F3FF;border:1px solid var(--prio-line);color:#4C1D95}
+.field{display:flex;flex-direction:column;gap:8px}
+.field>label,.legend-title{font-weight:700;font-size:16px}
+.req{color:var(--red)}
+.input{min-height:48px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink);width:100%}
+textarea.input{padding:10px 12px;line-height:1.6;resize:vertical}
+select.input:disabled{background:#F1F2F4;color:var(--muted)}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.choice{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font-weight:500}
+.choice.on{border-color:var(--accent);background:var(--accent-bg)}
+.choice input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+fieldset{margin:0;padding:0;border:0}
+legend{padding:0;margin-bottom:12px}
+
+/* 月曆 */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.wd{text-align:center;font-size:14px;font-weight:500;color:var(--ink2);padding:6px 0}
+.wd.we{color:var(--red)}
+.cell{min-height:clamp(64px,10vw,128px);min-width:0;padding:6px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;flex-direction:column;gap:4px}
+.cell.blank{border:0;background:none}
+.cell.past{background:#F1F2F4;border-color:#F1F2F4;opacity:.8}
+.cell.closed{background:#F6F7F9;border-style:dashed;border-color:var(--line2)}
+.cell.has-mine{border-color:#5EEAD4}
+.cell.sel{border-color:var(--accent)}
+.cell-date{flex:1 1 auto;width:100%;min-height:30px;padding:0;border:0;background:none;color:inherit;display:flex;align-items:flex-start;gap:6px;cursor:pointer;text-align:left}
+.cell-date:disabled{cursor:default}
+.num{min-width:30px;height:30px;padding:0 4px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:500}
+.past .num{color:var(--muted);font-weight:400}
+.num.wkend{color:var(--red)}
+.num.is-today{background:var(--accent);color:#fff;font-weight:700}
+.today-tag{font-size:12px;font-weight:700;color:var(--accent);line-height:30px}
+.closed-tag{font-size:11px;font-weight:700;color:var(--muted)}
+.chips{display:flex;flex-direction:column;gap:3px}
+.chip{display:block;width:100%;min-height:22px;padding:1px 5px;border:1.5px solid transparent;border-radius:6px;font-size:11px;font-weight:500;line-height:1.4;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.chip.approved{background:var(--gray-bg);color:var(--gray-ink)}
+.chip.pending{background:var(--amber-bg);color:var(--amber-ink)}
+.chip.mine{background:var(--mine-bg);color:var(--mine-ink)}
+.chip.overlap{border-color:var(--red)}
+.more,.compact{align-self:flex-start;border:0;background:none;padding:0 2px;min-height:22px;font-size:11px;font-weight:700;color:var(--ink2);text-decoration:underline;cursor:pointer}
+.compact{display:none}
+@media (max-width:720px){.chips{display:none}.compact{display:block}}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--ink2)}
+.legend span{display:flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* 步驟 */
+.steps{margin:0;padding:0;list-style:none;display:flex;align-items:center;gap:10px;font-size:15px}
+.steps li{display:flex;align-items:center;gap:8px;color:var(--ink2)}
+.steps li.on{color:var(--ink);font-weight:700}
+.steps .dot{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:var(--line);color:var(--ink2)}
+.steps li.on .dot,.steps li.done .dot{background:var(--accent);color:#fff}
+.steps .bar{width:36px;height:2px;background:var(--line2)}
+
+/* 選時段 */
+.strip-wrap{overflow-x:auto;padding-bottom:6px}
+.strip{display:flex;gap:8px;width:max-content}
+.day{width:78px;min-height:92px;padding:8px 4px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+.day small{font-size:12px;color:var(--ink2);font-weight:500}
+.day b{font-size:20px;line-height:1.1}
+.day.low small{color:#B45309}
+.day:disabled{background:#F1F2F4;border-color:#F1F2F4;color:var(--muted);cursor:not-allowed}
+.day:disabled small{color:var(--muted)}
+.day.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.day.on small{color:#E6F4F2}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.slot{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.slot input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.slot .t{font-size:17px;font-weight:500;font-variant-numeric:tabular-nums}
+.slot.blocked{background:#F6F7F9;border-color:#F1F2F4;color:var(--muted);cursor:not-allowed}
+.slot.s-pending{background:#FFFBEB;border-color:var(--amber-line)}
+.slot.cover{background:#FAF5FF;border-color:var(--prio-line)}
+.slot.on{background:var(--accent-bg);border-color:var(--accent)}
+.slot.on.cover{background:#F5F3FF;border-color:#7C3AED}
+.tag{padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.t-free{background:#ECFDF5;color:#047857}
+.t-pending{background:var(--amber-bg);color:var(--amber-ink)}
+.t-approved{background:var(--gray-bg);color:var(--gray-ink)}
+.t-mine{background:var(--mine-bg);color:var(--mine-ink)}
+.t-past{background:#F1F2F4;color:var(--ink2)}
+.t-cover{background:var(--prio-bg);color:var(--prio-ink)}
+.t-on{background:var(--accent);color:#fff}
+.t-on-cover{background:var(--prio-ink);color:#fff}
+.sticky{position:sticky;bottom:12px;background:#111827;color:#fff;border-radius:16px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.sticky .muted{color:#D1D5DB;font-size:13px}
+.sticky .btn{background:transparent;color:#fff;border-color:#4B5563}
+.sticky .btn.go{background:#2DD4BF;border-color:#2DD4BF;color:#042F2E;font-weight:700}
+.sticky .btn.go:disabled{background:#374151;border-color:#374151;color:#9CA3AF;opacity:1}
+
+/* 視窗 */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.dialog{width:100%;max-width:760px;max-height:92vh;background:#fff;border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
+.dialog.sm{max-width:520px}
+.dlg-head{padding:18px 16px 14px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dlg-body{flex:1 1 auto;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:12px}
+.dlg-foot{padding:16px 24px 20px;border-top:1px solid var(--line);background:#FAFAFA;display:flex;flex-direction:column;gap:14px}
+.rules{white-space:pre-line;line-height:1.85;color:#1F2937}
+.run{border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.run.on{border-color:var(--accent);background:var(--accent-bg)}
+dl.info{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px 18px}
+dl.info dt{font-size:13px;color:var(--ink2)}
+dl.info dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.box{padding:10px 14px;border-radius:10px;background:var(--bg);line-height:1.6;white-space:pre-line}
+
+/* 後台 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.stat.hot{background:#FFFBEB;border-color:var(--amber-line)}
+.stat b{display:block;font-size:30px;font-variant-numeric:tabular-nums}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:#fff;cursor:pointer;font-weight:500}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.app-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.app-card.pending{border-color:var(--amber-line)}
+.confirm{padding:14px 16px;border-radius:12px;display:flex;flex-direction:column;gap:10px}
+.confirm.ok{background:var(--accent-bg);border:1px solid #99F6E4;color:#134E4A}
+.confirm.no{background:var(--red-bg);border:1px solid var(--red-line);color:#991B1B}
+.empty{padding:32px;border-radius:14px;background:#fff;border:1px dashed var(--line2);text-align:center;color:var(--ink2)}
+.spin{color:var(--ink2);padding:40px 0;text-align:center}
+</style>
+<style>
+.authbar{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px;font-size:14px;color:var(--ink2)}
+.authbar .btn{min-height:44px}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* ===== 部署時只需要改這兩個值（見《部署說明》） ===== */
+const API_URL = 'https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec';                                   // Apps Script 網頁應用程式網址（結尾 /exec）
+const GOOGLE_CLIENT_ID = '318539943984-e6amlue35s5m437o5mnpmt5akq4p0p0a.apps.googleusercontent.com'; // Google Cloud 的 OAuth 用戶端 ID
+/* ===== 以下不需修改：登入，以及把原本的 gas.run 改成呼叫 API ===== */
+(function () {
+  const KEY = 'b1f14_idt';
+  const text = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const payload = t => { try { return JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } };
+  const token = () => {
+    const t = sessionStorage.getItem(KEY), p = t && payload(t);
+    if (p && p.exp * 1000 > Date.now() + 30000) return t;
+    sessionStorage.removeItem(KEY); return '';
+  };
+  const call = (fn, args) => {
+    if (API_URL.indexOf('https://script.google.com/a/macros/gm.ntpu.edu.tw/s/AKfycby02Ogj9io_BOF5p4-Y0LdznXiVssfE4I5p-MyRXcgC3A28ROUPVQ-xX9Ync4ZJAWG6/exec') === 0) return Promise.reject(new Error('尚未設定 API_URL，請依部署說明填入 Apps Script 網址。'));
+    return fetch(API_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args, token: token() }) })
+      .then(r => r.text())
+      .then(t => { let j; try { j = JSON.parse(t); } catch (e) { throw new Error('後端沒有回傳資料，請確認 Apps Script 已部署，且「誰可以存取」是「所有人」。'); } if (j.error) throw new Error(j.error); return j.r; },
+            () => { throw new Error('無法連線到後端，請檢查網路後再試。'); });
+  };
+  const runner = (ok, no) => new Proxy({}, { get: (_, name) => {
+    if (name === 'withSuccessHandler') return f => runner(f, no);
+    if (name === 'withFailureHandler') return f => runner(ok, f);
+    return (...args) => { call(String(name), args).then(r => { if (ok) ok(r); }, e => { if (no) no(e); else console.error(e); }); };
+  } });
+  window.gas = { run: runner(), url: { getLocation: cb => cb({ parameter: Object.fromEntries(new URLSearchParams(location.search)) }) } };
+
+  function drawAuth() {
+    const el = document.getElementById('authbar'); if (!el) return;
+    const t = token(), p = t && payload(t);
+    if (p) {
+      el.innerHTML = '<span>已登入：<b>' + text(p.email) + '</b></span><button type="button" class="btn outline" id="signout">登出</button>';
+      document.getElementById('signout').onclick = () => { sessionStorage.removeItem(KEY); try { google.accounts.id.disableAutoSelect(); } catch (e) {} location.reload(); };
+      return;
+    }
+    el.innerHTML = '<span>請用學校 Google 帳號（@gm.ntpu.edu.tw）登入</span><div id="gbtn"></div>';
+    let n = 0;
+    const wait = setInterval(() => {
+      if (window.google && google.accounts && google.accounts.id) {
+        clearInterval(wait);
+        google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: false, callback: r => { sessionStorage.setItem(KEY, r.credential); location.reload(); } });
+        google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: 'outline', size: 'large', locale: 'zh-TW' });
+      } else if (++n > 50) { clearInterval(wait); el.innerHTML += '<span>Google 登入元件載入失敗，請改用 Safari 或 Chrome 開啟，並檢查網路。</span>'; }
+    }, 200);
+  }
+  document.addEventListener('DOMContentLoaded', drawAuth);
+})();
+</script>
+
+</head>
+<body>
+<div class="wrap">
+  <div id="authbar" class="authbar"></div>
+  <h1 class="title">三峽校區學生會圖B1F14會議空間借用系統</h1>
+  <div id="app"><p class="spin">載入中…</p></div>
+</div>
+
+<script>
+const $app = document.getElementById('app');
+const CLUB = '本校社團或學生自治組織';
+const STC = { '待審核': 'b-pending', '已核准': 'b-approved', '已駁回': 'b-rejected', '已取消': 'b-cancelled' };
+const TABS = [['待審核', '待審核'], ['已核准', '已核准（尚未使用）'], ['已駁回', '已駁回'], ['已取消', '已取消'], ['all', '全部']];
+
+let D = null;
+const S = { tab: '待審核', approving: '', rejecting: '', note: '', toast: '', err: '', busy: false };
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const pad = n => (n < 10 ? '0' : '') + n;
+const slotText = i => pad(9 + i * 2) + ':00–' + pad(11 + i * 2) + ':00';
+const errMsg = e => (e && e.message) ? e.message : String(e);
+const active = a => a.status === '待審核' || a.status === '已核准';
+
+function load() {
+  gas.run
+    .withSuccessHandler(d => { D = d; S.err = ''; render(); })
+    .withFailureHandler(e => { S.err = errMsg(e); render(); })
+    .adminGetApplications();
+}
+
+function inTab(a) {
+  if (S.tab === 'all') return true;
+  if (S.tab === '已核准') return a.status === '已核准' && a.upcoming;
+  return a.status === S.tab;
+}
+
+function render() {
+  if (!D) {
+    $app.innerHTML = S.err ? '<p class="notice n-err">' + esc(S.err) + '</p>' : '<p class="spin">載入中…</p>';
+    return;
+  }
+  const cnt = { '待審核': 0, '已核准': 0, '已駁回': 0, '已取消': 0 };
+  D.apps.forEach(a => { if (a.status === '已核准' && !a.upcoming) return; if (cnt[a.status] !== undefined) cnt[a.status]++; });
+
+  const clubCount = {};
+  D.apps.forEach(a => {
+    if (a.role === CLUB && active(a) && a.upcoming) { const k = a.who.toLowerCase(); clubCount[k] = (clubCount[k] || 0) + 1; }
+  });
+
+  const list = D.apps.filter(inTab).sort((x, y) => {
+    if (S.tab === 'all') return y.date.localeCompare(x.date);
+    return x.date.localeCompare(y.date) || x.created.localeCompare(y.created);
+  });
+
+  const cards = list.map(a => {
+    const others = active(a) ? D.apps.filter(o => o !== a && active(o) && o.date === a.date && o.slots.some(i => a.slots.indexOf(i) >= 0)) : [];
+    const dup = a.role === CLUB && active(a) && (clubCount[a.who.toLowerCase()] || 0) > 1;
+    const pend = a.status === '待審核';
+    let actions = '';
+    if (pend && S.approving === a.code) {
+      actions = '<div class="confirm ok" role="alertdialog"><b>確定核准「' + esc(a.who) + '」於 ' + esc(a.dateLabel) + ' 借用以下時段？</b><p>' + a.slots.map(slotText).join('、') + '</p><p style="font-size:13px">核准後會寄信通知申請人，前台月曆顯示為「已借出」。</p>' +
+        '<div class="row end"><button class="btn" data-act="cancelConfirm">取消</button><button class="btn primary" data-act="approveYes" data-code="' + esc(a.code) + '"' + (S.busy ? ' disabled' : '') + '>確認核准</button></div></div>';
+    } else if (pend && S.rejecting === a.code) {
+      actions = '<div class="confirm no"><label for="rj" style="font-weight:700">駁回原因（選填，會寄給申請人）</label>' +
+        '<textarea id="rj" class="input" rows="2" maxlength="300" placeholder="例：該時段已優先保留給學生議會">' + esc(S.note) + '</textarea>' +
+        '<div class="row end"><button class="btn" data-act="cancelConfirm">取消</button><button class="btn danger" data-act="rejectYes" data-code="' + esc(a.code) + '"' + (S.busy ? ' disabled' : '') + '>確認駁回</button></div></div>';
+    } else if (pend) {
+      actions = '<div class="row end"><button class="btn danger-outline" data-act="rejectAsk" data-code="' + esc(a.code) + '">駁回</button><button class="btn primary" data-act="approveAsk" data-code="' + esc(a.code) + '">核准</button></div>';
+    } else if ((a.status === '已核准' || a.status === '已駁回') && a.upcoming) {
+      actions = '<div class="row end"><button class="btn" data-act="reopen" data-code="' + esc(a.code) + '"' + (S.busy ? ' disabled' : '') + '>改回待審核</button></div>';
+    }
+    return '<article class="app-card' + (pend ? ' pending' : '') + '">' +
+      '<div class="row between" style="align-items:flex-start"><div><h3>' + esc(a.dateLabel) + '</h3><p style="font-variant-numeric:tabular-nums">' + a.slots.map(slotText).join('、') + '</p></div>' +
+      '<div class="row" style="gap:6px">' + (dup ? '<span class="badge b-overlap">重複申請</span>' : '') + (a.priority ? '<span class="badge b-prio">優先單位</span>' : '') +
+      (others.length ? '<span class="badge b-overlap">時段重疊</span>' : '') + '<span class="badge ' + (STC[a.status] || '') + '">' + esc(a.status) + '</span></div></div>' +
+      '<dl class="info">' +
+      '<div><dt>申請單位</dt><dd>' + esc(a.who) + '</dd></div>' +
+      '<div><dt>聯絡人及職銜</dt><dd>' + esc(a.contact) + '</dd></div>' +
+      '<div><dt>聯絡方式</dt><dd>' + esc(a.phone) + '</dd></div>' +
+      '<div><dt>申請帳號</dt><dd>' + esc(a.applicant) + '</dd></div>' +
+      '<div><dt>申請編號</dt><dd>' + esc(a.code) + '</dd></div>' +
+      '<div><dt>送出時間</dt><dd>' + esc(a.created) + '</dd></div>' +
+      (a.reviewer ? '<div><dt>審核</dt><dd>' + esc(a.reviewer) + '｜' + esc(a.reviewed) + '</dd></div>' : '') +
+      '</dl>' +
+      '<div><p class="muted">借用事由</p><p class="box">' + esc(a.reason) + '</p></div>' +
+      (others.length ? '<p class="notice n-err">與 ' + others.map(o => esc(o.who) + '（' + esc(o.status) + '）').join('、') + ' 的申請時段重疊，請秘書處協調處理。</p>' : '') +
+      (a.status === '已駁回' && a.note ? '<p class="notice n-err">駁回原因：' + esc(a.note) + '</p>' : '') +
+      actions + '</article>';
+  }).join('');
+
+  $app.innerHTML =
+    '<div class="row between"><div><p class="muted">秘書處後台｜' + esc(D.me) + '</p><h2>借用申請審核</h2></div>' +
+    '<div class="row"><button class="btn" data-act="refresh">重新整理</button><a class="btn" href="' + esc(D.frontUrl) + '">查看前台月曆</a></div></div>' +
+    (S.toast ? '<div class="notice n-ok row between" role="status"><span>' + esc(S.toast) + '</span><button class="btn icon" style="border:0;background:none" data-act="closeToast" aria-label="關閉通知">✕</button></div>' : '') +
+    (S.err ? '<p class="notice n-err" role="alert">' + esc(S.err) + '</p>' : '') +
+    '<div class="stats"><div class="stat hot"><span class="muted">待審核</span><b>' + cnt['待審核'] + '</b></div>' +
+    '<div class="stat"><span class="muted">已核准（尚未使用）</span><b>' + cnt['已核准'] + '</b></div>' +
+    '<div class="stat"><span class="muted">已駁回</span><b>' + cnt['已駁回'] + '</b></div>' +
+    '<div class="stat"><span class="muted">已取消</span><b>' + cnt['已取消'] + '</b></div></div>' +
+    '<div class="tabs" role="group" aria-label="依狀態篩選">' + TABS.map(t =>
+      '<button class="tab' + (S.tab === t[0] ? ' on' : '') + '" data-act="tab" data-tab="' + t[0] + '" aria-pressed="' + (S.tab === t[0]) + '">' + t[1] + (t[0] !== 'all' ? '（' + cnt[t[0]] + '）' : '') + '</button>').join('') + '</div>' +
+    (cards || '<p class="empty">此分類目前沒有申請</p>') +
+    '<p class="muted" style="text-align:center">顯示 60 天前至今後的申請；更早的紀錄請直接查看試算表。</p>';
+}
+
+function setStatus(code, action, note) {
+  S.busy = true; S.err = ''; render();
+  gas.run
+    .withSuccessHandler(d => {
+      const a = d.apps.find(x => x.code === code);
+      D = d; S.busy = false; S.approving = ''; S.rejecting = ''; S.note = '';
+      S.toast = action === 'reopen' ? '已改回待審核。' :
+        (action === 'approve' ? '已核准' : '已駁回') + '「' + (a ? a.who : code) + '」' + (a ? a.dateLabel : '') + ' 的申請，系統已寄信通知申請人。';
+      render();
+    })
+    .withFailureHandler(e => { S.busy = false; S.err = errMsg(e); load(); })
+    .adminSetStatus(code, action, note || '');
+}
+
+const ACT = {
+  refresh() { S.toast = ''; load(); },
+  closeToast() { S.toast = ''; render(); },
+  tab(ds) { S.tab = ds.tab; S.approving = ''; S.rejecting = ''; render(); },
+  approveAsk(ds) { S.approving = ds.code; S.rejecting = ''; render(); },
+  rejectAsk(ds) { S.rejecting = ds.code; S.approving = ''; S.note = ''; render(); const t = document.getElementById('rj'); if (t) t.focus(); },
+  cancelConfirm() { S.approving = ''; S.rejecting = ''; render(); },
+  approveYes(ds) { setStatus(ds.code, 'approve'); },
+  rejectYes(ds) { setStatus(ds.code, 'reject', S.note); },
+  reopen(ds) { setStatus(ds.code, 'reopen'); }
+};
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  const fn = ACT[b.dataset.act];
+  if (fn) fn(b.dataset, e);
+});
+document.addEventListener('input', e => { if (e.target.id === 'rj') S.note = e.target.value; });
+
+load();
+</script>
+</body>
+</html>
